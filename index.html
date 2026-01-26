@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rfrfrftrf_hub</title>
+    <meta name="description" content="script">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --roblox-dark: #1e1e1e;
+            --roblox-darker: #111111;
+            --roblox-gui-bg: #2d2d2d;
+            --accent-green: #00ff7f;
+            --accent-orange: #ff8c00;
+            --text-main: #ffffff;
+            --text-dim: #a1a1aa;
+        }
+        
+        body {
+            background-color: #000;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .executor-window {
+            width: 900px;
+            height: 600px;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 12px;
+            border: 1px solid #444;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .top-bar {
+            height: 40px;
+            background: var(--roblox-darker);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid #333;
+            justify-content: space-between;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
+        .control-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .content-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #252525;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .script-btn {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-align: left;
+            border: 1px solid transparent;
+            font-size: 14px;
+        }
+
+        .script-btn:hover {
+            background: #333;
+            color: white;
+        }
+
+        .script-btn.active {
+            background: #383838;
+            color: white;
+            border-left: 3px solid white;
+        }
+
+        .script-btn.active-green { border-color: var(--accent-green); box-shadow: 0 0 10px rgba(0,255,127, 0.1); }
+        .script-btn.active-orange { border-color: var(--accent-orange); box-shadow: 0 0 10px rgba(255,140,0, 0.1); }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+        }
+
+        .editor-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .script-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        
+        .script-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+            display: flex;
+            gap: 15px;
+        }
+
+        .features-list {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .feature-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            background: #333;
+            color: #ccc;
+        }
+
+        .code-block {
+            background: #111;
+            margin: 0 20px 20px 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: white;
+            color: black;
+        }
+
+        .bottom-bar {
+            height: 50px;
+            background: #252525;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .user-info {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-github {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+        .btn-github:hover { background: #444; }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            font-weight: 600;
+            border: 1px solid #555;
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e1e1e; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="executor-window">
+        <div class="top-bar">
+            <div class="font-mono text-xs text-gray-400">rfrfrftrf_hub</div>
+            <div class="window-controls">
+                <div class="control-dot dot-green"></div>
+                <div class="control-dot dot-yellow"></div>
+                <div class="control-dot dot-red"></div>
+            </div>
+        </div>
+
+        <div class="content-area">
+
+            <!--scripts-->
+            <div class="sidebar">
+                <div class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider px-2">Scripts</div>
+                <div class="script-btn active active-green" onclick="switchTab('fling')">
+                    SHEILT FLING V1 GUI
+                </div>
+                <div class="script-btn" onclick="switchTab('prison')">
+                    SHEILT PRISON LIFE GUI
+                </div>
+            </div>
+
+            <div class="editor-container" id="content-fling">
+                <div class="editor-header">
+                    <h1 class="script-title text-[var(--accent-green)]">SHEILT FLING V1</h1>
+                    <div class="script-meta">
+                        <span>> STATUS: UNDETECTED</span>
+                        <span>> AUTHOR: sheiltisdead</span>
+                    </div>
+                </div>
+                
+                <div class="features-list">
+                    <p class="text-gray-400 text-sm mb-4">Powerful physics manipulation GUI. Includes visual ESP and protection features.</p>
+                    
+                    <div class="mb-4">
+                        <span class="feature-tag">Universal Fling</span>
+                        <span class="feature-tag">Anti-Fling</span>
+                        <span class="feature-tag">Anti-Kick</span>
+                        <span class="feature-tag">Player ESP</span>
+                        <span class="feature-tag">Health Monitor</span>
+                        <span class="feature-tag">Target Selector</span>
+                        <span class="feature-tag">Teleport</span>
+                    </div>
+
+                    <div class="code-block border-[var(--accent-green)]">
+                        <div class="text-gray-500 mb-2">// Copy the loadstring below</div>
+                        <code class="text-[var(--accent-green)] break-all">loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/Cherb-gui/main/nicescript.lua"))()</code>
+                        <button class="copy-btn hover:text-[var(--accent-green)]" onclick="copyScript('script1')">COPY</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="editor-container hidden" id="content-prison" style="display: none;">
+                <div class="editor-header">
+                    <h1 class="script-title text-[var(--accent-orange)]">PRISON LIFE GUI</h1>
+                    <div class="script-meta">
+                        <span>> STATUS: UNDETECTED</span>
+                        <span>> AUTHOR: sheiltisdead</span>
+                    </div>
+                </div>
+                
+                <div class="features-list">
+                    <p class="text-gray-400 text-sm mb-4">Advanced combat and survival suite for Prison Life. Features a key system (Key: "sheilt").</p>
+                    
+                    <div class="mb-4">
+                        <span class="feature-tag">Aimbot</span>
+                        <span class="feature-tag">Hitbox Expander</span>
+                        <span class="feature-tag">Anti-Aim (Spin/Jitter)</span>
+                        <span class="feature-tag">Team ESP</span>
+                        <span class="feature-tag">Bypass Anti-Cheat</span>
+                        <span class="feature-tag">Anti-Tase</span>
+                        <span class="feature-tag">Ghost Mode</span>
+                        <span class="feature-tag">Logs</span>
+                    </div>
+
+                    <div class="code-block border-[var(--accent-orange)]">
+                        <div class="text-gray-500 mb-2">// Copy the loadstring below</div>
+                        <code class="text-[var(--accent-orange)] break-all">loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/CameraLua-gui/main/PrisonLife.lua"))()</code>
+                        <button class="copy-btn hover:text-[var(--accent-orange)]" onclick="copyScript('script2')">COPY</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bottom-bar">
+            <div class="user-info">
+                Logged in as: <span class="text-white font-bold">Guest</span>
+            </div>
+            <a href="https://github.com/rfrfrftrf" target="_blank" class="action-btn btn-github">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                SOURCE CODE
+            </a>
+        </div>
+    </div>
+
+    <div id="toast">Script copied to clipboard!</div>
+
+    <script>
+        const scripts = {
+            script1: `loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/Cherb-gui/main/nicescript.lua"))()`,
+            script2: `loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/CameraLua-gui/main/PrisonLife.lua"))()`
+        };
+
+        function switchTab(tabId) {
+            document.getElementById('content-fling').style.display = 'none';
+            document.getElementById('content-prison').style.display = 'none';
+
+            const buttons = document.querySelectorAll('.script-btn');
+            buttons.forEach(btn => {
+                btn.className = 'script-btn';
+            });
+
+            if (tabId === 'fling') {
+                document.getElementById('content-fling').style.display = 'flex';
+                buttons[0].className = 'script-btn active active-green';
+            } else {
+                document.getElementById('content-prison').style.display = 'flex';
+                buttons[1].className = 'script-btn active active-orange';
+            }
+        }
+
+        function copyScript(scriptId) {
+            const textToCopy = scripts[scriptId];
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const letters = '01';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 33);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
