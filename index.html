@@ -15,6 +15,7 @@
             --accent-green: #00ff7f;
             --accent-orange: #ff8c00;
             --accent-red: #ff3333;
+            --accent-blue: #3b82f6;
             --text-main: #ffffff;
             --text-dim: #a1a1aa;
         }
@@ -127,6 +128,7 @@
         .script-btn.active-green { border-color: var(--accent-green); box-shadow: 0 0 10px rgba(0,255,127, 0.1); }
         .script-btn.active-orange { border-color: var(--accent-orange); box-shadow: 0 0 10px rgba(255,140,0, 0.1); }
         .script-btn.active-red { border-color: var(--accent-red); box-shadow: 0 0 10px rgba(255, 51, 51, 0.1); }
+        .script-btn.active-blue { border-color: var(--accent-blue); box-shadow: 0 0 10px rgba(59, 130, 246, 0.1); }
 
         .editor-container {
             flex: 1;
@@ -207,15 +209,20 @@
         .source-link {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             font-size: 12px;
             color: #888;
             text-decoration: none;
             margin-bottom: 20px;
             transition: 0.2s;
-            padding: 5px 10px;
+            padding: 8px 15px;
             border-radius: 4px;
             border: 1px solid #333;
+            background: transparent;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
         }
         .source-link:hover {
             background: #333;
@@ -235,6 +242,17 @@
         }
         .warning-icon { color: #ffa500; font-size: 16px; margin-top: 2px;}
         .warning-text { font-size: 12px; color: #aaa; line-height: 1.4; }
+
+        .warning-box.closed-source {
+            background: rgba(255, 51, 51, 0.05);
+            border: 1px solid rgba(255, 51, 51, 0.3);
+        }
+        .warning-box.closed-source .warning-icon {
+            color: var(--accent-red);
+        }
+        .warning-box.closed-source .warning-text strong {
+            color: var(--accent-red);
+        }
 
         .bottom-bar {
             height: 40px;
@@ -314,6 +332,11 @@
                 <div class="script-btn" onclick="switchTab('mm2')">
                     <span>SHEILT MM2 GUI</span>
                     <span class="w-2 h-2 rounded-full bg-[var(--accent-red)]"></span>
+                </div>
+
+                <div class="script-btn" onclick="switchTab('kvsgd')">
+                    <span>SHEILT KvsGD GUI KEY</span>
+                    <span class="w-2 h-2 rounded-full bg-[var(--accent-blue)]"></span>
                 </div>
 
                 <div class="mt-auto p-3 border-t border-[#333]">
@@ -407,7 +430,6 @@
                 </div>
             </div>
 
-            <!-- TAB 3: MM2 (NEW) -->
             <div class="editor-container hidden" id="content-mm2" style="display: none;">
                 <div class="editor-header">
                     <h1 class="script-title text-[var(--accent-red)]">SHEILT MM2 GUI</h1>
@@ -451,6 +473,49 @@
                 </div>
             </div>
 
+            <div class="editor-container hidden" id="content-kvsgd" style="display: none;">
+                <div class="editor-header">
+                    <h1 class="script-title text-[var(--accent-blue)]">SHEILT KvsGD GUI KEY</h1>
+                    <div class="script-meta">
+                        <span>> STATUS: UNDETECTED</span>
+                        <span>> AUTHOR: sheiltisdead</span>
+                    </div>
+                </div>
+                
+                <div class="features-list">
+                    <p class="text-gray-400 text-sm mb-4">Complete suite for Knife vs Gun DUELS. Includes key system and combat mods.</p>
+                    
+                    <div class="mb-4">
+                        <span class="feature-tag text-[var(--accent-blue)]">Automatic Bypass Anti-Cheat</span>
+                        <span class="feature-tag">EHitbox Expander</span>
+                        <span class="feature-tag">ESP / Chams</span>
+                        <span class="feature-tag">China Hat (hehe)</span>
+                        <span class="feature-tag">Speedhack + Bhop</span>
+                        <span class="feature-tag">Fakelag</span>
+                        <span class="feature-tag">FOV Changer</span>
+                    </div>
+
+                    <div class="code-block border-[var(--accent-blue)]">
+                        <div class="text-gray-500 mb-2">// Copy the loadstring below</div>
+                        <code class="text-[var(--accent-blue)] break-all">loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/knifevsgunduels-gui/main/knifevsgunduels.lua"))()</code>
+                        <button class="copy-btn hover:text-[var(--accent-blue)]" onclick="copyScript('script4')">COPY</button>
+                    </div>
+
+                    <button class="source-link hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)]" onclick="copyKeyLink()">
+                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                        GET KEY LINK (COPY TO CLIPBOARD)
+                    </button>
+
+                    <div class="warning-box closed-source">
+                        <div class="warning-icon">⛔</div>
+                        <div class="warning-text">
+                            <strong>CLOSED SOURCE NOTICE:</strong><br>
+                            This script is NOT open-source. The source code is obfuscated. We are not responsible for any malicious actions or bans. Use entirely at your own risk.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="bottom-bar">
@@ -469,13 +534,17 @@
         const scripts = {
             script1: `loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/Cherb-gui/main/nicescript.lua"))()`,
             script2: `loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/CameraLua-gui/main/PrisonLife.lua"))()`,
-            script3: `loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/fixlagsrbx-gui/main/mm2.lua"))()`
+            script3: `loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/fixlagsrbx-gui/main/mm2.lua"))()`,
+            script4: `loadstring(game:HttpGet("https://raw.githubusercontent.com/rfrfrftrf/knifevsgunduels-gui/main/knifevsgunduels.lua"))()`
         };
+
+        const keyLink = "https://link-center.net/3101199/B4ITttPq23Nc";
 
         function switchTab(tabId) {
             document.getElementById('content-fling').style.display = 'none';
             document.getElementById('content-prison').style.display = 'none';
             document.getElementById('content-mm2').style.display = 'none';
+            document.getElementById('content-kvsgd').style.display = 'none';
 
             const buttons = document.querySelectorAll('.script-btn');
             buttons.forEach(btn => {
@@ -491,21 +560,32 @@
             } else if (tabId === 'mm2') {
                 document.getElementById('content-mm2').style.display = 'flex';
                 buttons[2].className = 'script-btn active active-red';
+            } else if (tabId === 'kvsgd') {
+                document.getElementById('content-kvsgd').style.display = 'flex';
+                buttons[3].className = 'script-btn active active-blue';
             }
         }
 
         function copyScript(scriptId) {
             const textToCopy = scripts[scriptId];
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showToast();
+            copyToClipboard(textToCopy, "Script copied to clipboard!");
+        }
+
+        function copyKeyLink() {
+            copyToClipboard(keyLink, "Key Link copied! Paste it in your browser.");
+        }
+
+        function copyToClipboard(text, successMessage) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(successMessage);
             }).catch(err => {
                 const textArea = document.createElement("textarea");
-                textArea.value = textToCopy;
+                textArea.value = text;
                 document.body.appendChild(textArea);
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    showToast();
+                    showToast(successMessage);
                 } catch (err) {
                     console.error('Failed to copy', err);
                 }
@@ -513,8 +593,9 @@
             });
         }
 
-        function showToast() {
+        function showToast(message) {
             const toast = document.getElementById("toast");
+            if(message) toast.innerText = message;
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
